@@ -1,0 +1,30 @@
+import { test, expect } from '@playwright/test';
+
+// Sekcja konfiguracji danych
+const APP_URL = process.env.PLAYWRIGHT_APP_URL as string;
+const LOGIN = process.env.PLAYWRIGHT_TEST_LOGIN as string;
+const PASS = process.env.PLAYWRIGHT_TEST_PASS as string;
+
+test.describe('Autentykacja i sesja użytkownika', () => {
+
+    test('Użytkownik powinien móc się poprawnie zalogować i wylogować', async ({ page }) => {
+        // 1. LOGOWANIE
+        await page.goto(APP_URL);
+        await page.getByRole('button', { name: 'Zaloguj się' }).click();
+
+        await page.waitForURL(/.*keycloak.*/);
+        await page.getByLabel(/Login domenowy/).fill(LOGIN);
+        await page.getByLabel(/Hasło domenowe/).fill(PASS);
+        await page.getByRole('button', { name: 'Logowanie' }).click();
+
+        await page.waitForURL(/.*panel-administracyjny.*/);
+
+        // 2. WYLOGOWANIE
+        await page.getByRole('button', { name: 'JT' }).click();
+        await page.getByRole('button', { name: 'Wyloguj się' }).click();
+        await page.getByRole('button', { name: 'Wyloguj się' }).click();
+
+        await expect(page).toHaveURL(APP_URL);
+    });
+
+});
