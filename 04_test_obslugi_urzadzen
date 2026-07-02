@@ -1,0 +1,47 @@
+import { test, expect } from '@playwright/test';
+import 'dotenv/config';
+
+const APP_URL = process.env.PLAYWRIGHT_APP_URL as string;
+const LOGIN = process.env.PLAYWRIGHT_TEST_LOGIN as string;
+const PASS = process.env.PLAYWRIGHT_TEST_PASS as string;
+
+test.describe('Zarządzanie Urządzeniami - Tabele', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto(APP_URL);
+        await page.getByRole('button', { name: 'Zaloguj się'}).click();
+        await page.getByLabel(/Login domenowy/).fill(LOGIN);
+        await page.getByLabel(/Hasło domenowe/).fill(PASS);
+        await page.getByRole('button', { name: 'Logowanie' }).click();
+
+        await page.waitForURL(/.*panel-administracyjny.*/);
+
+        await page.getByRole('link', { name: 'Urządzenia' }).click();
+        await expect(page).toHaveURL(/.*urzadzenia.*/);
+    });
+
+    test('Użytkownik może przefiltrować tabelę, dezaktywować i ponownie aktywować urządzenie', async ({ page }) => {
+        const wyszukiwanaFraza = 'Tablet testowy od 27.05';
+        const nazwaUrzadzenia = 'Tablet testowy od 27.05.2026';
+
+        await page.getByPlaceholder('Opis urządzenia...').pressSequentially('tablet', { delay: 50 }); //zwiększenie delaya tutaj odkrywa błąd ucinania wpisanego tektu - ogarnąć temat potem jak poprawią
+        await page.waitForTimeout(1000);
+        const docelowyWiersz = page.getByRole('row', { name: nazwaUrzadzenia });
+        await expect(docelowyWiersz).toBeVisible();
+        await docelowyWiersz.getByRole('button', { name: 'Szczegóły urządzenia' }).click();
+        await page.waitForTimeout(1000);
+
+        const modal = page.getByRole('dialog');
+        const przyciskDezaktywuj = modal.getByRole('button', { name: 'Dezaktywuj' });
+        await expect(przyciskDezaktywuj).toBeVisible();
+        await przyciskDezaktywuj.click();
+        await page.waitForTimeout(1000); // pauza na pojawienie sie toasta
+        const  przyciskAktywuj = modal.getByRole('button', { name: 'Aktywuj' });
+        await expect(przyciskAktywuj).toBeVisible();
+        await przyciskAktywuj.click();
+        await page.waitForTimeout(1000); // pauza na pojawienie sie toasta
+        await expect(przyciskDezaktywuj).toBeVisible();
+        const przyciskZamknij = modal.locator('button').filter({ has: page.locator('.lucide-x') });
+        await przyciskZamknij.click();
+        await expect(modal).toBeHidden();
+    });
+});
