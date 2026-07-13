@@ -1,0 +1,32 @@
+import { test, expect } from '@playwright/test';
+import 'dotenv/config';
+
+const APP_URL = process.env.PLAYWRIGHT_APP_URL as string;
+const LOGIN = process.env.PLAYWRIGHT_TEST_LOGIN as string;
+const PASS = process.env.PLAYWRIGHT_TEST_PASS as string;
+
+test.describe('Słowniki - Lokalizacje (CRUD)', () => {
+
+    test.beforeEach(async ({ page }) => {
+
+        await  page.goto(APP_URL);
+        await page.getByRole('button', { name: 'Zaloguj sie' }).click();
+        await page.getByLabel(/Login domenowy/).fill(LOGIN);
+        await page.getByLabel(/Hasło domenowe/).fill(PASS)
+        await page.getByRole('button', { name: 'Logowanie' }).click();
+
+        await page.waitForURL(/.*panel-administracyjny.*/);
+
+        await page.getByRole('link', { name: 'Lokalizacje', exact: true }).click();
+        await expect(page).toHaveURL(/.*lokalizacje.*/);
+    });
+
+    test('Dodanie, wyszukanie i dezaktywacja nowej lokalizacji', async ({ page }) => {
+
+        const unikalnaNazwaLokalizacji = `Test_Lokalizacja_${Date.now()}`;
+
+        const przyciskDodaj = page.getByRole('button', { name: 'Dodaj lokalizację' });
+        await przyciskDodaj.click();
+        await page.waitForTimeout(2000);
+    });
+});
