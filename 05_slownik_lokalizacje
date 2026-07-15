@@ -24,9 +24,17 @@ test.describe('Słowniki - Lokalizacje (CRUD)', () => {
     test('Dodanie, wyszukanie i dezaktywacja nowej lokalizacji', async ({ page }) => {
 
         const unikalnaNazwaLokalizacji = `Test_Lokalizacja_${Date.now()}`;
+        const unikalnyKlifUuid = crypto.randomUUID();
 
         const przyciskDodaj = page.getByRole('button', { name: 'Dodaj lokalizację' });
         await przyciskDodaj.click();
         await page.waitForTimeout(2000);
+
+        const modal = page.getByRole('dialog');
+        await expect(modal).toBeVisible();
+
+        await modal.getByLabel('KLIF UUID').fill(unikalnyKlifUuid);
+        await modal.getByLabel('Nazwa').fill(unikalnaNazwaLokalizacji);
+        await modal.getByLabel('Miasto').fill('Lublin');
     });
 });
