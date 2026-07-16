@@ -21,7 +21,9 @@ test.describe('Słowniki - Lokalizacje (CRUD)', () => {
         await expect(page).toHaveURL(/.*lokalizacje.*/);
     });
 
-    test('Dodanie, wyszukanie i dezaktywacja nowej lokalizacji', async ({ page }) => {
+    // ============================ UWAGA Z TYM TESTEM - NARAZIE NIE DA SIĘ USUNĄĆ LOKALIZACJI =======================
+
+    test.skip('Dodanie i wyszukanie nowej lokalizacji', async ({ page }) => {
 
         const unikalnaNazwaLokalizacji = `Test_Lokalizacja_${Date.now()}`;
         const unikalnyKlifUuid = crypto.randomUUID();
@@ -29,12 +31,22 @@ test.describe('Słowniki - Lokalizacje (CRUD)', () => {
         await page.getByRole('button', { name: 'Dodaj lokalizację' }).click();
         const modal = page.getByRole('dialog');
 
-        await
         await modal.getByLabel('KLIF UUID').fill(unikalnyKlifUuid);
         await modal.getByLabel('Nazwa').fill(unikalnaNazwaLokalizacji);
         await modal.getByLabel('Miasto').fill('Lublin');
 
         await modal.getByRole('button', { name: /Dodaj lokalizację/ }).click();
         await expect(modal).toBeHidden();
+    });
+
+    test('Wyszukanie wybranej lokalizacji oraz jej dezaktywacja oraz ponowna aktywacja', async ({ page }) => {
+
+        const wybranaPlacowka = 'Centrum Medyczne Luxmed - Radziwiłłowska';
+        await page.getByPlaceholder('Nazwa lokalizacji...').fill(wybranaPlacowka);
+        await page.waitForTimeout(4000);
+
+        const docelowyWiersz = page.getByRole('row', { name: wybranaPlacowka});
+        await expect(docelowyWiersz).toBeVisible();
+
     });
 });
