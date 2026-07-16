@@ -47,6 +47,6 @@ test.describe('Słowniki - Lokalizacje (CRUD)', () => {
 
         const docelowyWiersz = page.getByRole('row', { name: wybranaPlacowka});
         await expect(docelowyWiersz).toBeVisible();
-
+// DOKOŃCZYĆ TEN TEST - DEZAKTYWACJA I PONOWNA AKTYWACJA
     });
 });
