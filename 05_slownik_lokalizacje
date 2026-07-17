@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import crypto from 'crypto';
 import 'dotenv/config';
 
 const APP_URL = process.env.PLAYWRIGHT_APP_URL as string;
@@ -8,11 +9,10 @@ const PASS = process.env.PLAYWRIGHT_TEST_PASS as string;
 test.describe('Słowniki - Lokalizacje (CRUD)', () => {
 
     test.beforeEach(async ({ page }) => {
-
-        await  page.goto(APP_URL);
+        await page.goto(APP_URL);
         await page.getByRole('button', { name: 'Zaloguj się' }).click();
         await page.getByLabel(/Login domenowy/).fill(LOGIN);
-        await page.getByLabel(/Hasło domenowe/).fill(PASS)
+        await page.getByLabel(/Hasło domenowe/).fill(PASS);
         await page.getByRole('button', { name: 'Logowanie' }).click();
 
         await page.waitForURL(/.*panel-administracyjny.*/);
@@ -21,10 +21,8 @@ test.describe('Słowniki - Lokalizacje (CRUD)', () => {
         await expect(page).toHaveURL(/.*lokalizacje.*/);
     });
 
-    // ============================ UWAGA Z TYM TESTEM - NARAZIE NIE DA SIĘ USUNĄĆ LOKALIZACJI =======================
-
+    // ============================ UWAGA Z TYM TESTEM - NA RAZIE NIE DA SIĘ USUNĄĆ LOKALIZACJI =======================
     test.skip('Dodanie i wyszukanie nowej lokalizacji', async ({ page }) => {
-
         const unikalnaNazwaLokalizacji = `Test_Lokalizacja_${Date.now()}`;
         const unikalnyKlifUuid = crypto.randomUUID();
 
@@ -39,14 +37,25 @@ test.describe('Słowniki - Lokalizacje (CRUD)', () => {
         await expect(modal).toBeHidden();
     });
 
-    test('Wyszukanie wybranej lokalizacji oraz jej dezaktywacja oraz ponowna aktywacja', async ({ page }) => {
+    test.describe.serial('Cykl życia statusu lokalizacji (DEZAKTYWUJ -> AKTYWUJ LOKALIZACJE)', () => {
 
-        const wybranaPlacowka = 'Lokalizacja Testy Automatyzacji'; // UTWORZONO LOKALIZACJĘ POD TESTY
-        await page.getByPlaceholder('Nazwa lokalizacji...').fill(wybranaPlacowka);
-        await page.waitForTimeout(4000);
+        test('Wyszukanie wybranej lokalizacji oraz jej dezaktywacja', async ({ page }) => {
+            const wybranaPlacowka = 'Lokalizacja Testy Automatyzacji';
+            await page.getByPlaceholder('Nazwa lokalizacji...').fill(wybranaPlacowka);
+            await page.waitForTimeout(4000);
 
-        const docelowyWiersz = page.getByRole('row', { name: wybranaPlacowka});
-        await expect(docelowyWiersz).toBeVisible();
-// DOKOŃCZYĆ TEN TEST - DEZAKTYWACJA I PONOWNA AKTYWACJA
-    });
-});
+            const docelowyWiersz = page.getByRole('row', { name: wybranaPlacowka});
+            await expect(docelowyWiersz).toBeVisible();
+
+            await docelowyWiersz.getByLabel('Dezaktywuj').click();
+
+            const modalPotwierdzeniaDezaktywacji = page.getByRole('dialog');
+            await modalPotwierdzeniaDezaktywacji.getByRole('button', { name: 'Dezaktywuj', exact: true }).click();
+            await expect(modalPotwierdzeniaDezaktywacji).toBeHidden();
+
+            const toastDezaktywacji = page.locator('.Toastify__toast');
+            await expect(toastDezaktywacji).toContainText('Lokalizacja została zdezaktywowana');
+            await toastDezaktywacji.getByLabel('close').click();
+
+            await expect(toastDezaktywacji).toBeHidden();
+        });
