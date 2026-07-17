@@ -59,3 +59,27 @@ test.describe('Słowniki - Lokalizacje (CRUD)', () => {
 
             await expect(toastDezaktywacji).toBeHidden();
         });
+
+        test('Wyszukanie wybranej lokalizacji oraz jej aktywacja', async ({ page }) => {
+            const wybranaPlacowka = 'Lokalizacja Testy Automatyzacji';
+            await page.getByPlaceholder('Nazwa lokalizacji...').fill(wybranaPlacowka);
+            await page.waitForTimeout(4000);
+
+            const docelowyWiersz = page.getByRole('row', { name: wybranaPlacowka});
+            await expect(docelowyWiersz).toBeVisible();
+
+            await docelowyWiersz.getByLabel('Aktywuj').click();
+
+            const modalPotwierdzeniaAktywacji = page.getByRole('dialog');
+            await modalPotwierdzeniaAktywacji.getByRole('button', { name: 'Aktywuj', exact: true }).click();
+            await expect(modalPotwierdzeniaAktywacji).toBeHidden();
+
+            const toastAktywacji = page.locator('.Toastify__toast');
+            await expect(toastAktywacji).toContainText('Lokalizacja została aktywowana');
+            await toastAktywacji.getByLabel('close').click();
+
+            await expect(toastAktywacji).toBeHidden();
+        });
+
+    });
+});
