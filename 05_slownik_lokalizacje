@@ -41,7 +41,7 @@ test.describe('Słowniki - Lokalizacje (CRUD)', () => {
 
     test('Wyszukanie wybranej lokalizacji oraz jej dezaktywacja oraz ponowna aktywacja', async ({ page }) => {
 
-        const wybranaPlacowka = 'Centrum Medyczne Luxmed - Radziwiłłowska';
+        const wybranaPlacowka = 'Lokalizacja Testy Automatyzacji'; // UTWORZONO LOKALIZACJĘ POD TESTY
         await page.getByPlaceholder('Nazwa lokalizacji...').fill(wybranaPlacowka);
         await page.waitForTimeout(4000);
 
