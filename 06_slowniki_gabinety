@@ -6,4 +6,18 @@ const APP_URL = process.env.PLAYWRIGHT_APP_URL as string;
 const LOGIN = process.env.PLAYWRIGHT_TEST_LOGIN as string;
 const PASS = process.env.PLAYWRIGHT_TEST_PASS as string;
 
-test.describe('Słowniki - Gabinety (CRUD)', () => {});
+test.describe('Słowniki - Gabinety (CRUD)', () => {
+
+    test.beforeEach(async ({ page }) => {
+        await page.goto(APP_URL);
+        await page.getByRole('button', { name: 'Zaloguj się' }).click();
+        await page.getByLabel(/Login domenowy/).fill(LOGIN);
+        await page.getByLabel(/Hasło domenowe/).fill(PASS);
+        await page.getByRole('button', { name: 'Logowanie' }).click();
+
+        await page.waitForURL(/.*panel-administracyjny.*/);
+
+        await page.getByRole('link', { name: 'Gabinety', exact: true }).click();
+        await expect(page).toHaveURL(/.*gabinety.*/);
+    });
+});
