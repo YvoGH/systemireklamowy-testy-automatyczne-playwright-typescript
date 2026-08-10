@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
 
-// Sekcja konfiguracji danych
 const APP_URL = process.env.PLAYWRIGHT_APP_URL as string;
 const LOGIN = process.env.PLAYWRIGHT_TEST_LOGIN as string;
 const PASS = process.env.PLAYWRIGHT_TEST_PASS as string;
@@ -48,7 +47,6 @@ test.describe('Zarządzanie panelem reklamowym', () => {
     });
 
     test('Użytkownik powinien móc dodać nową reklamę z plikiem, a następnie ją usunąć', async ({ page }) => {
-
         const UNIKALNA_NAZWA_REKLAMY = `Reklama_testowa_${Date.now()}`;
         const DATA_DZIS = new Date().toISOString().split('T')[0];
         const dataZaTydzien = new Date();
@@ -66,16 +64,18 @@ test.describe('Zarządzanie panelem reklamowym', () => {
         await page.getByLabel('Aktywna do').fill(DATA_ZA_TYDZIEN);
 
         await page.getByRole('button', { name: 'Dalej' }).click();
-
-        await page.locator('#select-all-devices').check();
         await page.getByRole('button', { name: 'Dodaj reklamy' }).click();
+        await page.getByRole('button', { name: 'Przypisz' }).click();
 
         const TOAST_SUKCESU = page.getByText('Utworzono 1 reklamę').first();
         await expect(TOAST_SUKCESU).toBeVisible();
-        await page.getByRole('button', { name: 'Zamknij' }).click();
+        await page.getByTestId('next-step').click();
 
+        await page.waitForTimeout(1000);
         await page.mouse.move(0, 0);
-        await page.mouse.move(500, 500); // Ruch w inne miejsce, który odpali event 'mousemove'
+        await page.waitForTimeout(1000);
+        await page.mouse.move(500, 500);
+        await page.waitForTimeout(1000);
 
         await expect(TOAST_SUKCESU).toBeHidden();
 
@@ -87,15 +87,17 @@ test.describe('Zarządzanie panelem reklamowym', () => {
         await expect(NOWY_KAFELEK).toBeVisible();
         await NOWY_KAFELEK.click();
 
-        const glownyPrzyciskUsun = page.getByText('Usuń', { exact: true }).filter({ visible: true }).first();
-        await glownyPrzyciskUsun.click();
-
         await page.waitForTimeout(1000);
 
-        const czerwonyPrzyciskPotwierdzenia = page.locator('div.bg-white button.bg-red-600');
-        await czerwonyPrzyciskPotwierdzenia.click();
+        await page.getByTestId('ad-delete').click();
 
-        await expect(page.getByText('Usunięto pomyślnie')).toBeVisible();
+        await page.getByTestId('dialog-confirm').click();
+
+        const toastSukcesUsuniecia = page.locator('.Toastify__toast--success');
+        await expect(toastSukcesUsuniecia).toContainText('Usunięto pomyślnie');
+        await toastSukcesUsuniecia.getByLabel('close').click();
+
+        await expect(toastSukcesUsuniecia).toBeHidden();
         await expect(NOWY_KAFELEK).not.toBeVisible();
     });
 });
