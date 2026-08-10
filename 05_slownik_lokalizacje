@@ -47,7 +47,7 @@ test.describe('Słowniki - Lokalizacje (CRUD)', () => {
             const docelowyWiersz = page.getByRole('row', { name: wybranaPlacowka});
             await expect(docelowyWiersz).toBeVisible();
 
-            await docelowyWiersz.getByLabel('Dezaktywuj').click();
+            await docelowyWiersz.getByLabel('Dezaktywuj', { exact: true }).click();
 
             const modalPotwierdzeniaDezaktywacji = page.getByRole('dialog');
             await modalPotwierdzeniaDezaktywacji.getByRole('button', { name: 'Dezaktywuj', exact: true }).click();
@@ -68,7 +68,7 @@ test.describe('Słowniki - Lokalizacje (CRUD)', () => {
             const docelowyWiersz = page.getByRole('row', { name: wybranaPlacowka});
             await expect(docelowyWiersz).toBeVisible();
 
-            await docelowyWiersz.getByLabel('Aktywuj').click();
+            await docelowyWiersz.getByLabel('Aktywuj', { exact: true }).click();
 
             const modalPotwierdzeniaAktywacji = page.getByRole('dialog');
             await modalPotwierdzeniaAktywacji.getByRole('button', { name: 'Aktywuj', exact: true }).click();
