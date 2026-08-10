@@ -43,3 +43,27 @@ test.describe('Słowniki - Gabinety (CRUD)', () => {
 
             await expect(toastDezaktywacji).toBeHidden();
         });
+
+        test('Wyszukanie wybranego gabinetu oraz jego aktywacja', async ({ page }) => {
+            const wybranyGabinet = 'Laboratorium Diagnostyczne';
+            await page.getByPlaceholder('Opis gabinetu...').fill(wybranyGabinet);
+            await page.waitForTimeout(4000);
+
+            const docelowyWiersz = page.getByRole('row', { name: wybranyGabinet});
+            await expect(docelowyWiersz).toBeVisible();
+
+            await docelowyWiersz.getByLabel('Aktywuj').click();
+
+            const modalPotwierdzeniaAktywacji = page.getByRole('dialog');
+            await modalPotwierdzeniaAktywacji.getByRole('button', { name: 'Aktywuj', exact: true }).click();
+            await expect(modalPotwierdzeniaAktywacji).toBeHidden();
+
+            const toastAktywacji = page.locator('.Toastify__toast');
+            await expect(toastAktywacji).toContainText(/gabinet/i);
+            await toastAktywacji.getByLabel('close').click();
+
+            await expect(toastAktywacji).toBeHidden();
+        });
+
+    });
+});
