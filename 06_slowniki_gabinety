@@ -20,4 +20,26 @@ test.describe('Słowniki - Gabinety (CRUD)', () => {
         await page.getByRole('link', { name: 'Gabinety', exact: true }).click();
         await expect(page).toHaveURL(/.*gabinety.*/);
     });
-});
+
+    test.describe.serial('Cykl życia statusu gabinetu', () => {
+
+        test('Wyszukanie wybranego gabinetu oraz jego dezaktywacja', async ({ page }) => {
+            const wybranyGabinet = 'Laboratorium Diagnostyczne';
+            await page.getByPlaceholder('Opis gabinetu...').fill(wybranyGabinet);
+            await page.waitForTimeout(4000);
+
+            const docelowyWiersz = page.getByRole('row', { name: wybranyGabinet});
+            await expect(docelowyWiersz).toBeVisible();
+
+            await docelowyWiersz.getByLabel('Dezaktywuj').click();
+
+            const modalPotwierdzeniaDezaktywacji = page.getByRole('dialog');
+            await modalPotwierdzeniaDezaktywacji.getByRole('button', { name: 'Dezaktywuj', exact: true }).click();
+            await expect(modalPotwierdzeniaDezaktywacji).toBeHidden();
+
+            const toastDezaktywacji = page.locator('.Toastify__toast');
+            await expect(toastDezaktywacji).toContainText(/gabinet/i);
+            await toastDezaktywacji.getByLabel('close').click();
+
+            await expect(toastDezaktywacji).toBeHidden();
+        });
