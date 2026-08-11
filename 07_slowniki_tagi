@@ -23,13 +23,44 @@ test.describe('Słowniki - Tagi (CRUD)', () => {
 
     test.describe.serial('Cykl życia statusu tagu', () => {
 
-        test('Wyszukiwanie wybranego tagi oraz jego dezaktywacja', async ({ page }) => {
+        test('Wyszukiwanie wybranego tagu i jego dezaktywacja', async ({ page }) => {
             const wybranyTag = 'Placówki lubelskie';
             await page.getByPlaceholder('Nazwa tagu...').fill(wybranyTag);
             await page.waitForTimeout(2500);
 
-            const docelowyWiersz = page.getByRole('row' { name : wybranyTag});
-            await expect
-        }
-    }
+            const docelowyWiersz = page.getByRole('row', { name : wybranyTag});
+            await expect(docelowyWiersz).toBeVisible();
+
+            await docelowyWiersz.getByLabel('Dezaktywuj', { exact: true }).click();
+
+            const modalPotwiedzeniaDezaktywacji = page.getByRole('dialog');
+            await modalPotwiedzeniaDezaktywacji.getByRole('button', { name: 'Dezaktywuj', exact: true}).click();
+            await expect(modalPotwiedzeniaDezaktywacji).toBeHidden()
+
+            const toastDezaktywacji = page.locator('.Toastify__toast');
+            await expect(toastDezaktywacji).toContainText(/tag/i);
+            await toastDezaktywacji.getByLabel('close').click();
+            await expect(toastDezaktywacji).toBeHidden();
+        });
+
+        test('Wyszukanie wybranego tagu i jego aktywacja', async ({ page }) => {
+            const wybranyTag = 'Placówki lubelskie';
+            await page.getByPlaceholder('Nazwa tagu...').fill(wybranyTag);
+            await page.waitForTimeout(2500);
+
+            const docelowyWiersz = page.getByRole('row', { name: wybranyTag});
+            await expect(docelowyWiersz).toBeVisible();
+
+            await docelowyWiersz.getByLabel('Aktywuj', { exact: true }).click();
+
+            const modalPotwiedzeniaAktywacji = page.getByRole('dialog');
+            await modalPotwiedzeniaAktywacji.getByRole('button', { name: 'Aktywuj', exact: true}).click();
+            await expect(modalPotwiedzeniaAktywacji).toBeHidden()
+
+            const toastAktywacji = page.locator('.Toastify__toast');
+            await expect(toastAktywacji).toContainText(/tag/i);
+            await toastAktywacji.getByLabel('close').click();
+            await expect(toastAktywacji).toBeHidden();
+        });
+    });
 });
