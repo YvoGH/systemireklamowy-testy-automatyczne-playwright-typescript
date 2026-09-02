@@ -8,6 +8,11 @@ export class LoginPage {
     readonly buttonLogowaniaKeycloak: Locator;
 
     constructor(page: Page) {
+        this.page = page;
+        this.buttonZalogujSie = this.page.getByRole('button', { name: 'Zaloguj się'});
+        this.loginInput = this.page.getByLabel(/Login domenowy/);
+        this.passwordInput = this.page.getByLabel(/Hasło domenowe/);
+        this.buttonLogowaniaKeycloak = this.page.getByRole('button', { name: 'Logowanie'});
     }
 
 }
