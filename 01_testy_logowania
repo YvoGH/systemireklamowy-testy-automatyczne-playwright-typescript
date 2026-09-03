@@ -1,0 +1,18 @@
+import { test, expect } from playwright/test;
+import { LoginPage } from '../pages/LoginPage';
+
+// Sekcja konfiguracji danych
+const APP_URL = process.env.PLAYWRIGHT_APP_URL as string;
+const LOGIN = process.env.PLAYWRIGHT_TEST_LOGIN as string;
+const PASS = process.env.PLAYWRIGHT_TEST_PASS as string;
+
+test.describe('Autentykacja i sesja użytkownika', () => {
+
+    test('Poprawne logowanie do systemu', async ({ page }) => {
+        await page.goto(APP_URL);
+
+        const stronaLogowania = new LoginPage(page);
+        await stronaLogowania.zalogujDoSystemu(LOGIN, PASS);
+        await page.waitForURL(/.*panel-administracyjny.*/);
+    })
+});
