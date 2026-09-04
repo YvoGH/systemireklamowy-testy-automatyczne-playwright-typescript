@@ -13,6 +13,6 @@ test.describe('Autentykacja i sesja użytkownika', () => {
 
         const stronaLogowania = new LoginPage(page);
         await stronaLogowania.zalogujDoSystemu(LOGIN, PASS);
-        await page.waitForURL(/.*panel-administracyjny.*/);
+        await expect(page.getByRole('heading', { name: 'System reklamowy' })).toBeVisible();
     })
 });
